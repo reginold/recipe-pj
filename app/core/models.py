@@ -43,11 +43,27 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Tag(models.Model):
     """Tag to be used for a recipe"""
+
     name = models.CharField(max_length=255)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE
     )
+
+    def __str__(self):
+        return self.name
+
+
+class Ingredient(models.Model):
+    """Ingredient to be used in a recipe"""
+
+    name = models.CharField(max_length=255)
+    # https://docs.djangoproject.com/en/3.2/topics/db/examples/many_to_one/
+    # see the models.Foreignkey
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+        )
 
     def __str__(self):
         return self.name
