@@ -67,3 +67,27 @@ class Ingredient(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Recipe(models.Model):
+    """Recipe obeject"""
+
+    title = models.CharField(max_length=255)
+    time_minutes = models.IntegerField()
+    price = models.DecimalField(max_digits=5, decimal_places=2)
+    # if the link is none, instead of the optional argu
+    link = models.CharField(max_length=255, blank=True)
+    # when you delete the blog post, you also delete the comment
+    # means you remove the user, you remove the recipe as well
+    # on_delete = CASCADE
+    # ref: https://stackoverflow.com/questions/38388423/
+    # what-does-on-delete-do-on-django-models
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
+    ingredients = models.ManyToManyField('Ingredient')
+    tags = models.ManyToManyField('Tag')
+
+    def __str__(self) -> str:
+        return self.title
