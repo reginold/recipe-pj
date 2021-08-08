@@ -1,4 +1,4 @@
-from core.models import Ingredient, Tag, Recipe
+from core.models import Ingredient, Recipe, Tag
 from rest_framework import mixins, viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -6,16 +6,17 @@ from rest_framework.permissions import IsAuthenticated
 from recipe import serializers
 
 
-class BaseRecipeAttrViewSet(viewsets.GenericViewSet,
-                            mixins.ListModelMixin,
-                            mixins.CreateModelMixin):
+class BaseRecipeAttrViewSet(
+    viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin
+):
     """Base viewset for user owned recipe attributes"""
+
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         """Return objects for the current authenticated user only"""
-        return self.queryset.filter(user=self.request.user).order_by('-name')
+        return self.queryset.filter(user=self.request.user).order_by("-name")
 
     def perform_create(self, serializer):
         """Create a new object"""
@@ -38,6 +39,7 @@ class IngredientViewSet(BaseRecipeAttrViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """Manage recipes in the database"""
+
     serializer_class = serializers.RecipeSerializer
     queryset = Recipe.objects.all()
     authentication_classes = (TokenAuthentication,)
@@ -46,3 +48,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Retrieve the recipes for the authenticated user"""
         return self.queryset.filter(user=self.request.user)
+
+    def get_serializer_class(self):
+        """Return appropriate serializer class"""
+        if self.action == "retrieve":
+            return serializers.RecipeDetailSerializer
+
+        return self.serializer_class
