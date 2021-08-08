@@ -1,3 +1,6 @@
+import os
+import uuid
+
 from django.conf import settings
 from django.contrib.auth.models import (
     AbstractBaseUser,
@@ -5,6 +8,14 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 from django.db import models
+
+
+def recipe_image_file_path(instance, filename):
+    """Generate file path for new recipe image"""
+    ext = filename.split(".")[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+
+    return os.path.join("uploads/recipe/", filename)
 
 
 class UserManager(BaseUserManager):
@@ -45,10 +56,7 @@ class Tag(models.Model):
     """Tag to be used for a recipe"""
 
     name = models.CharField(max_length=255)
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -60,10 +68,7 @@ class Ingredient(models.Model):
     name = models.CharField(max_length=255)
     # https://docs.djangoproject.com/en/3.2/topics/db/examples/many_to_one/
     # see the models.Foreignkey
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
-        )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -82,12 +87,10 @@ class Recipe(models.Model):
     # on_delete = CASCADE
     # ref: https://stackoverflow.com/questions/38388423/
     # what-does-on-delete-do-on-django-models
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
-    )
-    ingredients = models.ManyToManyField('Ingredient')
-    tags = models.ManyToManyField('Tag')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    ingredients = models.ManyToManyField("Ingredient")
+    tags = models.ManyToManyField("Tag")
+    image = models.ImageField(null=True, upload_to=recipe_image_file_path)
 
     def __str__(self) -> str:
         return self.title
